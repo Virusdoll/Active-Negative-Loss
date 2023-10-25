@@ -1,0 +1,33 @@
+{
+    "model": {
+        "name": "toymodel8l"
+    },
+    "loss": {
+        "name": "nce_agce",
+        "alpha": 1.0,
+        "beta": 4.0,
+        "a": 6.0,
+        "q": 1.5
+    },
+    "dataset": {
+        "name": "cifar10",
+        "num_classes": 10,
+        "train_batchsize": 128,
+        "test_batchsize": 256,
+        "num_workers": 4
+    },
+    "optim": {
+        "total_epoch": 120,
+        
+        "optimizer": "sgd",
+        "learning_rate": 0.01,
+        "momentum": 0.9,
+        "weight_decay": 1e-4,
+
+        "grad_bound": 5.0,
+        
+        "scheduler": "cosine",
+        "T_max": 120,
+        "eta_min": 0
+    }
+}

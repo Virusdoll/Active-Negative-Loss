@@ -1,0 +1,33 @@
+{
+    "model": {
+        "name": "toymodel4l"
+    },
+    "loss": {
+        "name": "nce_agce",
+        "alpha": 0.0,
+        "beta": 1.0,
+        "a": 4.0,
+        "q": 0.2
+    },
+    "dataset": {
+        "name": "mnist",
+        "num_classes": 10,
+        "train_batchsize": 128,
+        "test_batchsize": 256,
+        "num_workers": 4
+    },
+    "optim": {
+        "total_epoch": 50,
+        
+        "optimizer": "sgd",
+        "learning_rate": 0.01,
+        "momentum": 0.9,
+        "weight_decay": 1e-3,
+
+        "grad_bound": 5.0,
+        
+        "scheduler": "cosine",
+        "T_max": 50,
+        "eta_min": 0
+    }
+}

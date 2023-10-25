@@ -1,0 +1,33 @@
+{
+    "model": {
+        "name": "resnet50"
+    },
+    "loss": {
+        "name": "gce",
+        "q": 0.7
+    },
+    "dataset": {
+        "name": "webvision",
+        "num_classes": 50,
+        "train_batchsize": 512,
+        "test_batchsize": 1024,
+        "num_workers": 8,
+        "train_data_path": "/media/store/yxc/datasets/webvision",
+        "val_data_path": "/media/store/yxc/datasets/ILSVRC2012"
+    },
+    "optim": {
+        "total_epoch": 250,
+        
+        "optimizer": "sgd",
+        "learning_rate": 0.4,
+        "momentum": 0.9,
+        "weight_decay": 3e-5,
+        "nesterov": true,
+        
+        "grad_bound": 5.0,
+        
+        "scheduler": "steplr",
+        "step_size": 1,
+        "gamma": 0.97
+    }
+}

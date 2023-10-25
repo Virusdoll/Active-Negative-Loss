@@ -1,0 +1,29 @@
+{
+    "model": {
+        "name": "resnet34"
+    },
+    "loss": {
+        "name": "ce"
+    },
+    "dataset": {
+        "name": "cifar100",
+        "num_classes": 100,
+        "train_batchsize": 128,
+        "test_batchsize": 256,
+        "num_workers": 4
+    },
+    "optim": {
+        "total_epoch": 200,
+        
+        "optimizer": "sgd",
+        "learning_rate": 0.1,
+        "momentum": 0.9,
+        "weight_decay": 1e-5,
+        
+        "grad_bound": 5.0,
+        
+        "scheduler": "cosine",
+        "T_max": 200,
+        "eta_min": 0
+    }
+}
