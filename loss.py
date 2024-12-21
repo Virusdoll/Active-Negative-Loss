@@ -1,3 +1,4 @@
+import math
 import torch
 import torch.nn.functional as F
 
@@ -270,6 +271,45 @@ class ActiveNegativeLoss(torch.nn.Module):
         
         return loss
 
+class ANL_CE_ER(torch.nn.Module):
+    def __init__(self, num_classes, alpha, beta, delta, lamb, min_prob=1e-7, *args, **kwargs) -> None:
+        super().__init__()
+        self.num_classes = num_classes
+        self.alpha = alpha
+        self.beta = beta
+        self.delta = delta
+        self.min_prob = min_prob
+        self.lamb = lamb
+        self.A = - torch.tensor(min_prob).log()
+
+    def forward(self, pred, labels, model, **kwargs):
+        loss_nce = self.nce(pred, labels)
+        loss_nnce = self.nnce(pred, labels)
+        l1_norm = sum(p.abs().sum() for p in model.parameters())
+        entropy = self.entropy_reg(pred)
+        return self.alpha * loss_nce + self.beta * loss_nnce + self.delta * l1_norm + self.lamb * entropy
+    
+    def nce(self, pred, labels):
+        pred = F.log_softmax(pred, dim=1)
+        label_one_hot = F.one_hot(labels, self.num_classes).float().to(pred.device)
+        nce = -1 * torch.sum(label_one_hot * pred, dim=1) / (- pred.sum(dim=1))
+        return nce.mean()
+    
+    def nnce(self, pred, labels):
+        pred = F.softmax(pred, dim=1)
+        pred = pred.clamp(min=self.min_prob, max=1-self.min_prob)
+        pred = self.A + pred.log() # - log(1e-7) - (- log(p(k|x)))
+        label_one_hot = F.one_hot(labels, self.num_classes).to(pred.device)
+        nnce = 1 - (label_one_hot * pred).sum(dim=1) / pred.sum(dim=1)
+        return nnce.mean()
+    
+    def entropy_reg(self, pred):
+        prob = F.softmax(pred, dim=1).clamp(min=self.min_prob, max=1-self.min_prob)
+        prob_class = prob.sum(dim=0).view(-1) / prob.sum()
+        prob_class = prob_class.clamp(min=self.min_prob, max=1-self.min_prob)
+        entropy = math.log(self.num_classes) + (prob_class * prob_class.log()).sum()
+        return entropy
+
 # Help Function
 
 def _apl(active_loss, passive_loss, config):
@@ -358,3 +398,8 @@ def anl_ce(num_classes, config):
 
 def anl_fl(num_classes, config):
     return _anl(nfl(num_classes, config), nnfl(num_classes, config), config)
+
+# Active Negative Loss with Entropy Regularization
+def anl_ce_er(num_classes, config):
+    return ANL_CE_ER(num_classes, config['alpha'], config['beta'],
+                     config['delta'], config['lamb'], config['min_prob'])
